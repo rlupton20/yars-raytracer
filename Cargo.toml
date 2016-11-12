@@ -1,0 +1,7 @@
+[package]
+name = "yars-raytracer"
+version = "0.1.0"
+authors = ["Richard Lupton <richard.lupton@gmail.com>"]
+
+[dependencies]
+image = '*'
