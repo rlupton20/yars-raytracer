@@ -8,7 +8,7 @@ pub trait VectorSpace : Add + Sized {
 
 
 pub trait InnerProductSpace : VectorSpace {
-    fn dot(&self, rhs : &Self) -> Self::Field;
+    fn dot(self, rhs : Self) -> Self::Field;
 }
 
 

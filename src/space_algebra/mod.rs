@@ -6,6 +6,7 @@ use std::ops::Mul;
 use algebra::Group;
 
 use std::vec::Vec;
+use std::f64;
 
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -18,7 +19,18 @@ enum SO3Gen {
 impl SO3Gen {
     fn to_matrix(self) -> Matrix3 {
         match self {
-            _ => Matrix3::identity()
+            SO3Gen::RotationX(theta) => 
+                Matrix3::with_columns( Vec3(1.0, 0.0, 0.0),
+                                       Vec3(0.0, theta.cos(), -theta.sin()),
+                                       Vec3(0.0, theta.sin(), theta.cos()) ),
+            SO3Gen::RotationY(theta) =>
+                Matrix3::with_columns( Vec3(theta.cos(), 0.0, theta.sin()),
+                                       Vec3(0.0, 1.0, 0.0),
+                                       Vec3(-theta.sin(), 0.0, theta.cos()) ),
+            SO3Gen::RotationZ(theta) =>
+                Matrix3::with_columns( Vec3(theta.cos(), theta.sin(), 0.0),
+                                      Vec3(-theta.sin(), theta.cos(), 0.0),
+                                      Vec3(0.0, 0.0, 1.0) )
         }
     }
 }
@@ -69,8 +81,27 @@ impl Mul for SO3 {
     }
 }
 
+impl Mul<Vec3> for SO3 {
+    type Output = Vec3;
+    fn mul(self, rhs : Vec3) -> Vec3 {
+        let SO3(m) = self;
+        m * rhs
+    }
+}
+
 
 #[test]
 fn test_SO3_multiplication() {
-    assert!(SO3::rotation_x(3.0) * SO3::rotation_y(3.0) == SO3::identity())
+    let tolerance = 0.0000001;
+    let SO3(m1) = SO3::rotation_x(3.0) * SO3::rotation_x(-3.0);
+    assert!(Matrix3::dist(m1, Matrix3::identity()) < tolerance);
+}
+
+#[test]
+fn test_SO3_multiply_vector() {
+    let s = SO3::rotation_x(1.0);
+    let v = Vec3(1.0, 0.0, 0.0);
+    let expected = Vec3(1.0, 0.0, 0.0);
+
+    assert!(s * v == expected);
 }
