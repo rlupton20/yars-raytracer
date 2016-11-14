@@ -112,7 +112,7 @@ impl Matrix3 {
         Vec3(a,b,c)
     }
 
-    fn identity() -> Matrix3 {
+    pub fn identity() -> Matrix3 {
         Matrix3( Vec3(1.0, 0.0, 0.0),
                  Vec3(0.0, 1.0, 0.0),
                  Vec3(0.0, 0.0, 1.0))
