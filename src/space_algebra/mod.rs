@@ -41,11 +41,11 @@ pub struct SO3(Matrix3);
 
 
 impl SO3 {
-    fn identity() -> SO3 {
+    pub fn identity() -> SO3 {
         SO3(Matrix3::identity())
     }
 
-    fn rotation_x(theta: f64) -> SO3 {
+    pub fn rotation_x(theta: f64) -> SO3 {
         if theta == 0.0 {
             SO3::identity()
         } else {
@@ -53,7 +53,7 @@ impl SO3 {
         }
     }
 
-    fn rotation_y(theta: f64) -> SO3 {
+    pub fn rotation_y(theta: f64) -> SO3 {
         if theta == 0.0 {
             SO3::identity()
         } else {
@@ -61,7 +61,7 @@ impl SO3 {
         }
     }
 
-    fn rotation_z(theta: f64) -> SO3 {
+    pub fn rotation_z(theta: f64) -> SO3 {
         if theta == 0.0 {
             SO3::identity()
         } else {

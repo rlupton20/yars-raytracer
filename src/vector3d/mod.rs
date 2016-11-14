@@ -10,19 +10,19 @@ pub struct Matrix3(Vec3, Vec3, Vec3);
 
 
 impl Vec3 {
-    fn i(&self) -> f64 {
+    pub fn i(&self) -> f64 {
         self.0
     }
 
-    fn j(&self) -> f64 {
+    pub fn j(&self) -> f64 {
         self.1
     }
 
-    fn k(&self) -> f64 {
+    pub fn k(&self) -> f64 {
         self.2
     }
 
-    fn zero() -> Vec3 {
+    pub fn zero() -> Vec3 {
         Vec3(0.0, 0.0, 0.0)
     }
 }

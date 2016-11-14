@@ -3,3 +3,4 @@
 mod algebra;
 mod vector3d;
 mod space_algebra;
+mod camera;
