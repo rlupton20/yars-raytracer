@@ -1,6 +1,8 @@
 // Library modules for yars-raytracer
 
-mod algebra;
-mod vector3d;
-mod space_algebra;
-mod camera;
+pub mod algebra;
+pub mod vector3d;
+pub mod space_algebra;
+pub mod ray;
+pub mod camera;
+pub mod shapes;

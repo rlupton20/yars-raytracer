@@ -3,5 +3,8 @@ name = "yars-raytracer"
 version = "0.1.0"
 authors = ["Richard Lupton <richard.lupton@gmail.com>"]
 
+[lib]
+name = "yars_raytracer"
+
 [dependencies]
 image = '*'
