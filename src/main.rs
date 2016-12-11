@@ -8,6 +8,9 @@ use yars_raytracer::vector3d::Vec3;
 use yars_raytracer::camera::CameraBuilder;
 use image::{ImageBuffer, ImageRgb8, Rgb, PNG};
 
+use yars_raytracer::shapes::Sphere;
+use yars_raytracer::ray::{Ray, Intersectable};
+
 fn main() {
     let WIDTH = 800;
     let HEIGHT = 600;
@@ -16,15 +19,17 @@ fn main() {
     let camera = CameraBuilder::new(WIDTH,HEIGHT,90.0).build();
 
     let mut img = ImageBuffer::new(WIDTH,HEIGHT);
+    let s = Sphere { centre : Vec3(0.0, 0.0, 5.0),
+                     radius : 1.0 };
 
     for (x,y,pixel) in img.enumerate_pixels_mut() {
-        let Vec3(x,_,_) = camera.get_direction_through_pixel(x,y);
+        let dir = camera.get_direction_through_pixel(x,y);
+        let ray = Ray { origin : Vec3::zero(),
+                        direction : dir };
         
-        if x*x < 0.5 {
-            *pixel = Rgb([255 as u8, 0 as u8, 0 as u8]);
-        }
-        else {
-            *pixel = Rgb([0 as u8, 0 as u8, 0 as u8]);
+        match s.intersect(&ray) {
+            Some(_) => *pixel = Rgb([255 as u8, 0 as u8, 0 as u8]),
+            None => *pixel = Rgb([0 as u8, 0 as u8, 0 as u8]),
         }
     }
 

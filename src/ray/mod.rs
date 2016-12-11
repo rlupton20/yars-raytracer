@@ -9,7 +9,7 @@ pub struct Ray {
 }
 
 pub trait Intersectable {
-    fn intersect(self, ray : Ray) -> Option<Vec3>;
+    fn intersect(&self, ray : &Ray) -> Option<Vec3>;
 }
 
 pub trait Orientable {

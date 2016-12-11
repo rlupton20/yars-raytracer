@@ -64,7 +64,7 @@ impl InnerProductSpace for Vec3 {
 
 // From the inner product space structure we can define a norm
 impl Vec3 {
-    fn norm(self) -> f64 {
+    pub fn norm(self) -> f64 {
         self.dot(self).sqrt()
     }
 }
