@@ -19,6 +19,7 @@ impl Intersectable for Sphere {
 
         let discriminant = b*b - a*c;
 
+        // Select the nearest intersection in the positive direction
         if discriminant >= 0.0 {
             let t = if -b > discriminant.sqrt() {
                 (-b - discriminant.sqrt()) / a
@@ -27,7 +28,14 @@ impl Intersectable for Sphere {
                 (-b + discriminant.sqrt()) / a
             };
 
-            Some(ray.origin + t*ray.direction)
+            // t <= 0.0 means the intersection of ray and sphere is
+            // behind the ray origin, so evaluate to None in this case
+            if t > 0.0 {
+                Some(ray.origin + t*ray.direction)
+            }
+            else {
+                None
+            }
         }
         else {
             None
@@ -58,5 +66,15 @@ fn test_intersection_of_ray_and_sphere() {
     let ray = Ray { origin : Vec3::zero(),
                     direction : Vec3(1.0, 0.0, 0.0)};
     let expected = Some(Vec3(1.0, 0.0, 0.0));
+    assert!(expected == sphere.intersect(&ray));
+}
+
+#[test]
+fn test_intersection_of_ray_and_sphere_behind() {
+    let sphere = Sphere { centre : Vec3::zero(),
+                          radius : 1.0 };
+    let ray = Ray { origin : Vec3(2.0, 0.0, 0.0),
+                    direction : Vec3(1.0, 0.0, 0.0) };
+    let expected = None;
     assert!(expected == sphere.intersect(&ray));
 }
