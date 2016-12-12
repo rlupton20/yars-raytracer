@@ -67,6 +67,10 @@ impl Vec3 {
     pub fn norm(self) -> f64 {
         self.dot(self).sqrt()
     }
+
+    pub fn normalize(self) -> Vec3 {
+        (1.0 / self.norm()) * self
+    }
 }
 
 // Now we give Vec3 an (additive) group structure
