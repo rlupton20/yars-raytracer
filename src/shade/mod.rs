@@ -40,8 +40,8 @@ fn test_blue_channel_getter() {
 struct PhongShader {}
 
 impl PhongShader {
-    fn ambient_light(s : Scene) -> AmbientLight {
-        s.ambient_light
+    fn ambient_light<'a>(s : &'a Scene) -> &'a AmbientLight {
+        &s.ambient_light
     }
 
 }
