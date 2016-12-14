@@ -1,7 +1,7 @@
 // scene.rs - definitions for scenes
 use image::Rgb;
 use vector3d::Vec3;
-use shade::Shadable;
+use ray::Shadable;
 
 pub struct Light {
     pub position : Vec3,
@@ -14,6 +14,7 @@ pub struct AmbientLight {
     
 
 pub struct Scene {
-    objects : Vec<Box<Shadable>>,
-    lights : Vec<Light>
+    pub ambient_light : AmbientLight,
+    pub objects : Vec<Box<Shadable>>,
+    pub lights : Vec<Light>
 }

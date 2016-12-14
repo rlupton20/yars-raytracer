@@ -3,9 +3,8 @@ use image::Rgb;
 
 use vector3d::Vec3;
 use algebra::InnerProductSpace;
-use ray::{Ray, Intersectable, Orientable};
+use ray::{Ray, Intersectable, Orientable, Shadable};
 use materials::{Material, HasMaterial};
-use shade::Shadable;
 
 pub struct Sphere {
     pub centre : Vec3,
