@@ -19,7 +19,7 @@ fn blue<T: Primitive>(c: Rgb<T>) -> T {
     c.data[2]
 }
 
-struct PhongShader {}
+pub struct PhongShader {}
 
 impl PhongShader {
     fn dot(x: Vec3, y: Vec3) -> f64 {
@@ -30,7 +30,7 @@ impl PhongShader {
         &s.ambient_light
     }
 
-    fn diffuse_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<(f64, Rgb<u8>)> {
+    pub fn diffuse_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<(f64, Rgb<u8>)> {
         let &ShadeCell(p, n, _) = shade_cell;
         scene.lights
             .iter()

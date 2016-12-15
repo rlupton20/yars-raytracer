@@ -52,6 +52,7 @@ impl Ray {
     pub fn trace<'a>(&self, objects: &'a Vec<Box<Shadable>>) -> Option<ShadeCell<'a>> {
         let strikes = objects.into_iter()
             .map(|x| x.intersect(&self))
+            .map(|x| Ray::adjust_for_tolerance(self.origin, x))
             .zip(objects.into_iter())
             .min_by_key(|x| Ray::measure_strike_distance(self.origin, x.0))
             .unwrap();
@@ -64,6 +65,18 @@ impl Ray {
             }
         }
     }
+
+    // Trace tolerance helper
+    fn adjust_for_tolerance(p : Vec3, x : Option<Vec3>) -> Option<Vec3> {
+        let tolerance : Real = Real::from_float(0.00001).unwrap();
+        if Ray::measure_strike_distance(p, x) < tolerance {
+            None
+        }
+        else {
+            x
+        }
+    }
+        
 
     // Helper function to find the closest intersection
     fn measure_strike_distance(p: Vec3, x: Option<Vec3>) -> Real {
