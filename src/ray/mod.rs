@@ -12,7 +12,7 @@ pub struct Ray {
 
 // A ShadeCell contains all the point relevant information
 // we need to colour a point
-pub struct ShadeCell<'a>(Vec3, Vec3, &'a Material);
+pub struct ShadeCell<'a>(pub Vec3, pub Vec3, pub &'a Material);
 
 pub trait Intersectable {
     fn intersect(&self, ray: &Ray) -> Option<Vec3>;

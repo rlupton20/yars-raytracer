@@ -9,7 +9,7 @@ pub struct Light {
 }
 
 pub struct AmbientLight {
-    colour : Rgb<u8>
+    pub colour : Rgb<u8>
 }
     
 
