@@ -31,11 +31,25 @@ impl PhongShader {
     }
 
     pub fn diffuse_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<(f64, Rgb<u8>)> {
-        let &ShadeCell(p, n, _) = shade_cell;
+        let &ShadeCell(p, n, _, _) = shade_cell;
         scene.lights
             .iter()
             .filter(|l| l.illuminates(p, &scene.objects))
             .map(|l| (PhongShader::dot((l.position - p).normalize(), n), l.colour))
+            .collect()
+    }
+
+    pub fn specular_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<(f64, Rgb<u8>)> {
+        let &ShadeCell(p, n, v, _) = shade_cell;
+        
+        let from = | light : &Light | (p-light.position).normalize();
+        let reflect = | x : Vec3, n : Vec3 | -1.0 * (2.0 * n.dot(x) * n - x);
+        let reflection_from = | light : &Light | reflect(from(light), n);
+
+        scene.lights
+            .iter()
+            .filter(|l| l.illuminates(p, &scene.objects))
+            .map(|l| (PhongShader::dot(reflection_from(l), -1.0 * v), l.colour))
             .collect()
     }
 }

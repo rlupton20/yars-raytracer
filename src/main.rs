@@ -20,19 +20,20 @@ fn main() {
     let HEIGHT = 600;
     let OUTPUT = "output.png";
     
-    let camera = CameraBuilder::new(WIDTH,HEIGHT,90.0).build();
+    let camera = CameraBuilder::new(WIDTH,HEIGHT,45.0).build();
 
     let mut img = ImageBuffer::new(WIDTH,HEIGHT);
 
     // Some test paramters
     let a_colour = Rgb([255 as u8; 3]);
     let light = Light {
-        position: Vec3(2.0, 0.0, 0.0),
+        position: Vec3(4.0, -4.0, 0.0),
         colour: a_colour,
     };
 
-    let sphere = Box::new(Sphere::simple(Vec3(0.0, 0.0, 3.0), 1.0)) as Box<Shadable>;
-    let scene_objects = vec![sphere];
+    let sphere = Box::new(Sphere::simple(Vec3(0.0, 0.0, 8.0), 1.0)) as Box<Shadable>;
+    let obst = Box::new(Sphere::simple(Vec3(2.0, -2.0, 4.0), 0.05)) as Box<Shadable>;
+    let scene_objects = vec![sphere, obst];
 
     let ambient = AmbientLight { colour: a_colour };
 
@@ -54,10 +55,14 @@ fn main() {
                 let i = PhongShader::diffuse_at_shade_cell(&sc, &scene).iter()
                     .map(|x| x.0)
                     .fold(0.1, |x, y| x + y);
-                let col = (0.3 * i * 255.0).floor().min(255.0) as u8;
-                let ShadeCell(x, _, _) = sc;
+                let j = PhongShader::specular_at_shade_cell(&sc, &scene).iter()
+                    .map(|x| x.0)
+                    .fold(0.1, |x, y| x + y)
+                    .powf(5.0);
+                let col = (40.0 + 0.3 * i * 255.0 + 0.3 * j * 255.0).floor().min(255.0) as u8;
+                let ShadeCell(x, _, _, _) = sc;
                 let Vec3(q,_,p) = x;
-                
+
                 *pixel = Rgb([col, 0 as u8, 0 as u8]);
             }
             None => *pixel = Rgb([0 as u8, 0 as u8, 0 as u8]),
