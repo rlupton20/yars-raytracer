@@ -35,7 +35,7 @@ fn main() {
     let obst = Box::new(Sphere::simple(Vec3(2.0, -2.0, 4.0), 0.05)) as Box<Shadable>;
     let scene_objects = vec![sphere, obst];
 
-    let ambient = AmbientLight { colour: a_colour };
+    let ambient = AmbientLight { colour: Rgb([70 ; 3]) };
 
     let scene = Scene {
         ambient_light: ambient,
@@ -52,7 +52,7 @@ fn main() {
         
         match ray.trace(&scene.objects) {
             Some(sc) => {
-                *pixel = PhongShader::local_shade(&sc, &scene)
+                *pixel = PhongShader::shade(&sc, &scene, vec![])
             }
             None => *pixel = Rgb([0 as u8, 0 as u8, 0 as u8]),
         }

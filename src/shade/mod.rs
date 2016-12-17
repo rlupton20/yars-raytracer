@@ -36,13 +36,15 @@ impl PhongShader {
             .iter()
             .filter(|l| l.illuminates(p, &scene.objects))
             .map(|l| {
-                PhongShader::adjust_intensity(l, PhongShader::dot((l.position - p).normalize(), n))
+                PhongShader::adjust_intensity(l.colour,
+                    PhongShader::dot((l.position - p).normalize(), n))
             })
             .collect()
     }
 
     fn specular_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<Rgb<u8>> {
-        let &ShadeCell(p, n, v, _) = shade_cell;
+        let &ShadeCell(p, n, v, m) = shade_cell;
+        let shininess = m.shine();
 
         let from = |light: &Light| (p - light.position).normalize();
         let reflect = |x: Vec3, n: Vec3| -1.0 * (2.0 * n.dot(x) * n - x);
@@ -52,24 +54,49 @@ impl PhongShader {
             .iter()
             .filter(|l| l.illuminates(p, &scene.objects))
             .map(|l| {
-                PhongShader::adjust_intensity(l, PhongShader::dot(reflection_from(l), -1.0 * v))
+                PhongShader::adjust_intensity(l.colour,
+                    PhongShader::dot(reflection_from(l), -1.0 * v).powf(shininess))
             })
             .collect()
     }
 
-    pub fn local_shade(shade_cell : &ShadeCell, scene: &Scene) -> Rgb<u8> {
-        let a : Rgb<u8> = PhongShader::ambient_light(scene).colour;
+    fn local_shade(shade_cell : &ShadeCell, scene: &Scene) -> Rgb<u8> {
+        let &ShadeCell(_,_,_,m) = shade_cell;
+        let ambience = m.ambient_refletivity();
+        let diffusivity = m.diffusive_reflectivity();
+        let specularity = m.specular_reflectiviy();
+
+        let a : Rgb<u8> = PhongShader::adjust_intensity_piecewise(
+            PhongShader::ambient_light(scene).colour, ambience);
+
         let b = PhongShader::diffuse_at_shade_cell(shade_cell, scene).into_iter()
+            .map(|c| PhongShader::adjust_intensity_piecewise(c, diffusivity))
             .fold(a, PhongShader::add_illumination);
+
         PhongShader::specular_at_shade_cell(shade_cell, scene).into_iter()
+            .map(|c| PhongShader::adjust_intensity_piecewise(c, specularity))
             .fold(b, PhongShader::add_illumination)
     }
 
-    fn adjust_intensity(l: &Light, i: f64) -> Rgb<u8> {
-        let approx = |col: f64| col.floor() as u8;
-        let adjust = |f: &Fn(Rgb<u8>) -> u8| approx(i * (f(l.colour) as f64));
+    pub fn shade(shade_cell : &ShadeCell, scene: &Scene, influence : Vec<Rgb<u8>>)
+                 -> Rgb<u8> {
+        let i = PhongShader::local_shade(shade_cell, scene);
+        influence.into_iter()
+            .fold(i, PhongShader::add_illumination)
+    }
 
-        Rgb([adjust(&red), adjust(&green), adjust(&blue)])
+    fn adjust_intensity_piecewise(c : Rgb<u8>, adjust_components : [f64 ; 3]) -> Rgb<u8> {
+        let approx = |col: f64| col.floor() as u8;
+        let adjust = |f: &Fn(Rgb<u8>) -> u8, a : f64| approx(a * (f(c) as f64));
+
+        Rgb([adjust(&red, adjust_components[0]),
+             adjust(&green, adjust_components[1]),
+             adjust(&blue, adjust_components[2])])
+    }
+
+    fn adjust_intensity(c: Rgb<u8>, i: f64) -> Rgb<u8> {
+        let adjust_components = [i ; 3];
+        PhongShader::adjust_intensity_piecewise(c, adjust_components)
     }
 
     fn add_illumination(a: Rgb<u8>, b: Rgb<u8>) -> Rgb<u8> {
