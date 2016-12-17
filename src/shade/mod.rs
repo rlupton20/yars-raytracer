@@ -5,7 +5,7 @@ use algebra::InnerProductSpace;
 use shapes::Sphere;
 use scene::{Scene, AmbientLight, Light};
 use ray::{Ray, ShadeCell, Shadable};
-use std::ops::Mul;
+use std::ops::{Add, Mul};
 
 fn red<T: Primitive>(c: Rgb<T>) -> T {
     c.data[0]
@@ -30,27 +30,52 @@ impl PhongShader {
         &s.ambient_light
     }
 
-    pub fn diffuse_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<(f64, Rgb<u8>)> {
+    fn diffuse_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<Rgb<u8>> {
         let &ShadeCell(p, n, _, _) = shade_cell;
         scene.lights
             .iter()
             .filter(|l| l.illuminates(p, &scene.objects))
-            .map(|l| (PhongShader::dot((l.position - p).normalize(), n), l.colour))
+            .map(|l| {
+                PhongShader::adjust_intensity(l, PhongShader::dot((l.position - p).normalize(), n))
+            })
             .collect()
     }
 
-    pub fn specular_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<(f64, Rgb<u8>)> {
+    fn specular_at_shade_cell(shade_cell: &ShadeCell, scene: &Scene) -> Vec<Rgb<u8>> {
         let &ShadeCell(p, n, v, _) = shade_cell;
-        
-        let from = | light : &Light | (p-light.position).normalize();
-        let reflect = | x : Vec3, n : Vec3 | -1.0 * (2.0 * n.dot(x) * n - x);
-        let reflection_from = | light : &Light | reflect(from(light), n);
+
+        let from = |light: &Light| (p - light.position).normalize();
+        let reflect = |x: Vec3, n: Vec3| -1.0 * (2.0 * n.dot(x) * n - x);
+        let reflection_from = |light: &Light| reflect(from(light), n);
 
         scene.lights
             .iter()
             .filter(|l| l.illuminates(p, &scene.objects))
-            .map(|l| (PhongShader::dot(reflection_from(l), -1.0 * v), l.colour))
+            .map(|l| {
+                PhongShader::adjust_intensity(l, PhongShader::dot(reflection_from(l), -1.0 * v))
+            })
             .collect()
+    }
+
+    pub fn local_shade(shade_cell : &ShadeCell, scene: &Scene) -> Rgb<u8> {
+        let a : Rgb<u8> = PhongShader::ambient_light(scene).colour;
+        let b = PhongShader::diffuse_at_shade_cell(shade_cell, scene).into_iter()
+            .fold(a, PhongShader::add_illumination);
+        PhongShader::specular_at_shade_cell(shade_cell, scene).into_iter()
+            .fold(b, PhongShader::add_illumination)
+    }
+
+    fn adjust_intensity(l: &Light, i: f64) -> Rgb<u8> {
+        let approx = |col: f64| col.floor() as u8;
+        let adjust = |f: &Fn(Rgb<u8>) -> u8| approx(i * (f(l.colour) as f64));
+
+        Rgb([adjust(&red), adjust(&green), adjust(&blue)])
+    }
+
+    fn add_illumination(a: Rgb<u8>, b: Rgb<u8>) -> Rgb<u8> {
+        Rgb([red(a).saturating_add(red(b)),
+             green(a).saturating_add(green(b)),
+             blue(a).saturating_add(blue(b))])
     }
 }
 
@@ -110,7 +135,7 @@ fn test_gets_diffuse_at_shade_cell() {
 
     let diffuse = PhongShader::diffuse_at_shade_cell(&shade_cell, &scene);
     print!("{:?}", diffuse);
-    let expected = vec![(1.0, a_colour)];
+    let expected = vec![a_colour];
 
     assert!(expected == diffuse);
 }
