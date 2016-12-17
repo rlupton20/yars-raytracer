@@ -10,3 +10,4 @@ pub mod materials;
 pub mod shapes;
 pub mod shade;
 pub mod scene;
+pub mod raytrace;

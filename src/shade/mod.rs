@@ -7,21 +7,31 @@ use scene::{Scene, AmbientLight, Light};
 use ray::{Ray, ShadeCell, Shadable};
 use std::ops::{Add, Mul};
 
-fn red<T: Primitive>(c: Rgb<T>) -> T {
+pub fn red<T: Primitive>(c: Rgb<T>) -> T {
     c.data[0]
 }
 
-fn green<T: Primitive>(c: Rgb<T>) -> T {
+pub fn green<T: Primitive>(c: Rgb<T>) -> T {
     c.data[1]
 }
 
-fn blue<T: Primitive>(c: Rgb<T>) -> T {
+pub fn blue<T: Primitive>(c: Rgb<T>) -> T {
     c.data[2]
+}
+
+
+pub trait Shader {
+    fn shade(&self, shade_cell : &ShadeCell, scene: &Scene, influence : Vec<Rgb<u8>>)
+             -> Rgb<u8>;
 }
 
 pub struct PhongShader {}
 
 impl PhongShader {
+    pub fn instance() -> PhongShader {
+        return PhongShader {}
+    }
+    
     fn dot(x: Vec3, y: Vec3) -> f64 {
         x.dot(y).max(0.0)
     }
@@ -78,12 +88,6 @@ impl PhongShader {
             .fold(b, PhongShader::add_illumination)
     }
 
-    pub fn shade(shade_cell : &ShadeCell, scene: &Scene, influence : Vec<Rgb<u8>>)
-                 -> Rgb<u8> {
-        let i = PhongShader::local_shade(shade_cell, scene);
-        influence.into_iter()
-            .fold(i, PhongShader::add_illumination)
-    }
 
     fn adjust_intensity_piecewise(c : Rgb<u8>, adjust_components : [f64 ; 3]) -> Rgb<u8> {
         let approx = |col: f64| col.floor() as u8;
@@ -101,8 +105,18 @@ impl PhongShader {
 
     fn add_illumination(a: Rgb<u8>, b: Rgb<u8>) -> Rgb<u8> {
         Rgb([red(a).saturating_add(red(b)),
-             green(a).saturating_add(green(b)),
-             blue(a).saturating_add(blue(b))])
+                green(a).saturating_add(green(b)),
+                blue(a).saturating_add(blue(b))])
+    }
+
+}
+
+impl Shader for PhongShader {
+    fn shade(&self, shade_cell : &ShadeCell, scene: &Scene, influence : Vec<Rgb<u8>>)
+                 -> Rgb<u8> {
+        let i = PhongShader::local_shade(shade_cell, scene);
+        influence.into_iter()
+            .fold(i, PhongShader::add_illumination)
     }
 }
 

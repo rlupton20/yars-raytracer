@@ -9,7 +9,8 @@ use yars_raytracer::algebra::InnerProductSpace;
 use yars_raytracer::ray::Orientable;
 use yars_raytracer::camera::CameraBuilder;
 use yars_raytracer::scene::{Scene, Light, AmbientLight};
-use yars_raytracer::shade::{PhongShader};
+use yars_raytracer::shade::{Shader, PhongShader};
+use yars_raytracer::raytrace::Raytracer;
 use image::{ImageBuffer, ImageRgb8, Rgb, PNG};
 
 use yars_raytracer::shapes::Sphere;
@@ -43,16 +44,19 @@ fn main() {
         lights: vec![light],
     };
 
+    let tracer = Raytracer::<PhongShader>::from_shader(PhongShader::instance());
+
     // now do some tracing
 
     for (x,y,pixel) in img.enumerate_pixels_mut() {
         let dir = camera.get_direction_through_pixel(x,y);
         let ray = Ray { origin : Vec3::zero(),
                         direction : dir };
+
         
-        match ray.trace(&scene.objects) {
-            Some(sc) => {
-                *pixel = PhongShader::shade(&sc, &scene, vec![])
+        match tracer.trace_to_depth(2,&ray,&scene) {
+            Some(col) => {
+                *pixel = col
             }
             None => *pixel = Rgb([0 as u8, 0 as u8, 0 as u8]),
         }
