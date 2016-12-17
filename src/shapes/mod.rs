@@ -16,9 +16,13 @@ impl Sphere {
     // temporarily public - really only for testing
     pub fn simple(c : Vec3, r : f64) -> Sphere {
         let red = Rgb([255 as u8, 0 as u8, 0 as u8]);
-        Sphere { centre : c,
-                 radius : r,
-                 material : Material::plain(red) }
+        Sphere::new(c, r, Material::plain(red))
+    }
+
+    pub fn new(c : Vec3, r : f64, m : Material) -> Sphere {
+        Sphere{ centre : c,
+                radius : r,
+                material : m }
     }
 }
                  
