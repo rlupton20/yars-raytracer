@@ -21,13 +21,6 @@ pub trait Intersectable {
 
 pub trait Orientable {
     fn normal(&self, v: Vec3) -> Vec3;
-
-    // If we have a normal, we can compute a reflection;
-    // we provide a default implementation for reflect
-    fn reflect(&self, p: Vec3, v: Vec3) -> Vec3 {
-        let norm = self.normal(p);
-        -1.0 * (2.0 * norm.dot(v) * norm - v)
-    }
 }
 
 pub trait Shadable: Intersectable + Orientable + HasMaterial {}

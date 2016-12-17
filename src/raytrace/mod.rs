@@ -25,7 +25,6 @@ impl<S: Shader> Raytracer<S> {
         };
 
         if depth < 1 {
-            assert!(false);
             None
         } else {
             ray.trace(&scene.objects)
@@ -34,7 +33,10 @@ impl<S: Shader> Raytracer<S> {
     }
 
     fn generate_next_rays_and_effect(&self, shader_cell: &ShadeCell) -> Vec<([f64; 3], Ray)> {
-        vec![]
+        let &ShadeCell(p, n, v, m) = shader_cell;
+        let reflection = Ray { origin : p,
+                               direction : n.reflect(v) };
+        vec![(m.reflectivity(), reflection)]
     }
 
     // This is the same function as in the shader, and probably should

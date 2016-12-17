@@ -71,6 +71,10 @@ impl Vec3 {
     pub fn normalize(self) -> Vec3 {
         (1.0 / self.norm()) * self
     }
+
+    pub fn reflect(self, v : Vec3) -> Vec3 {
+        -1.0 * (2.0 * v.dot(self) * self - v)
+    }
 }
 
 // Now we give Vec3 an (additive) group structure
@@ -209,6 +213,14 @@ fn test_norm_of_vec3() {
     assert!(v.norm() == expected);
 }
 
+#[test]
+fn test_reflection_in_vector() {
+    let v = Vec3(1.0, 0.0, 0.0);
+    let w = Vec3(-1.0, -1.0, 0.0);
+    let expected = Vec3(1.0, -1.0, 0.0);
+    
+    assert!(expected == v.reflect(w));
+}
 
 #[test]
 fn test_group_structure_for_vec3() {

@@ -57,8 +57,7 @@ impl PhongShader {
         let shininess = m.shine();
 
         let from = |light: &Light| (p - light.position).normalize();
-        let reflect = |x: Vec3, n: Vec3| -1.0 * (2.0 * n.dot(x) * n - x);
-        let reflection_from = |light: &Light| reflect(from(light), n);
+        let reflection_from = |light: &Light| n.reflect(from(light));
 
         scene.lights
             .iter()

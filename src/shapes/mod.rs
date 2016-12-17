@@ -98,14 +98,3 @@ fn test_intersection_of_ray_and_sphere_behind() {
     let expected = None;
     assert!(expected == sphere.intersect(&ray));
 }
-
-#[test]
-fn test_sphere_orientability_reflect() {
-    let sphere = Sphere::simple(Vec3::zero(), 1.0);
-
-    let p = Vec3(1.0, 0.0, 0.0);
-    let v = Vec3(-1.0, 0.0, 1.0);
-    let expected = Vec3(1.0, 0.0, 1.0);
-
-    assert!(expected == sphere.reflect(p,v));
-}
