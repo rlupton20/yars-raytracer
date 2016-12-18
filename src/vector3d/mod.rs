@@ -75,6 +75,12 @@ impl Vec3 {
     pub fn reflect(self, v : Vec3) -> Vec3 {
         -1.0 * (2.0 * v.dot(self) * self - v)
     }
+
+    pub fn cross(self, v : Vec3) -> Vec3 {
+        Vec3(self.j()*v.k() - self.k()*v.j(),
+             v.i()*self.k() - self.i()*v.k(),
+             self.i()*v.j() - v.i()*self.j())
+    }
 }
 
 // Now we give Vec3 an (additive) group structure
@@ -220,6 +226,14 @@ fn test_reflection_in_vector() {
     let expected = Vec3(1.0, -1.0, 0.0);
     
     assert!(expected == v.reflect(w));
+}
+
+#[test]
+fn test_cross_product_of_vectors() {
+    let i = Vec3(1.0, 0.0, 0.0);
+    let j = Vec3(0.0, 1.0, 0.0);
+    let k = Vec3(0.0, 0.0, 1.0);
+    assert!(i.cross(j) == k);
 }
 
 #[test]

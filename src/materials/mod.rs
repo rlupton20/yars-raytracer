@@ -10,7 +10,7 @@ pub struct Material {
 }
 
 impl Material {
-    pub fn plain(col: Rgb<u8>) -> Material {
+    pub fn plain() -> Material {
         Material::new([0.1, 0.3, 0.2],
                       [0.1, 0.8, 0.4],
                       [0.2, 0.6, 0.6],
